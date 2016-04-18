@@ -20,6 +20,11 @@ class Model():
         else:
             raise Exception("model type not supported: {}".format(args.model))
 
+        if args.gpu:
+          gpu = args.gpu
+        else:
+          gpu = 0
+
         cell = cell_fn(args.rnn_size)
 
         self.cell = cell = rnn_cell.MultiRNNCell([cell] * args.num_layers)
@@ -31,7 +36,12 @@ class Model():
         with tf.variable_scope('rnnlm'):
             softmax_w = tf.get_variable("softmax_w", [args.rnn_size, args.vocab_size])
             softmax_b = tf.get_variable("softmax_b", [args.vocab_size])
-            with tf.device("/cpu:0"):
+            if not gpu:
+              device = tf.device("/cpu:0")
+            else:
+              device = tf.device("/gpu:1")
+
+            with device:
                 embedding = tf.get_variable("embedding", [args.vocab_size, args.rnn_size])
                 inputs = tf.split(1, args.seq_length, tf.nn.embedding_lookup(embedding, self.input_data))
                 inputs = [tf.squeeze(input_, [1]) for input_ in inputs]

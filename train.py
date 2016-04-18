@@ -36,6 +36,8 @@ def main():
                        help='learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.97,
                        help='decay rate for rmsprop')
+    parser.add_argument('--gpu', type=int, default=0, help='use gpu')
+
     args = parser.parse_args()
     train(args)
 
